@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AEC.Controllers
 {
-    [Route("Login")]
     public class LoginController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,7 +15,6 @@ namespace AEC.Controllers
             _context = context;
         }
 
-        [HttpGet]
         public IActionResult Index()
         {
             ViewBag.ErrorMessage = HttpContext.Session.GetString("ErrorMessage");
@@ -46,13 +44,12 @@ namespace AEC.Controllers
             return View("Index");
         }
 
-        [HttpGet("Create")]
         public IActionResult Create()
         {
             return View("Create");
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<IActionResult> Create(UsuarioModel novoUsuario)
         {
             if (ModelState.IsValid)
@@ -76,8 +73,6 @@ namespace AEC.Controllers
             return View("Create", novoUsuario);
         }
 
-
-        [HttpPost("logout")]
         public IActionResult Logout()
         {
             HttpContext.Session.Remove("UserId");

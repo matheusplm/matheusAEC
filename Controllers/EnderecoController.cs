@@ -1,12 +1,13 @@
 ﻿using AEC.Data;
+using AEC.Filters;
 using AEC.Models;
 using AEC.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace AEC.Controllers
 {
+    [AuthenticatedUser]
     public class EnderecoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,15 +17,10 @@ namespace AEC.Controllers
             _context = context;
         }
 
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Login", "Login");
 
             var enderecos = await _context.Enderecos
                 .Where(e => e.UsuarioId == userId)
@@ -33,7 +29,6 @@ namespace AEC.Controllers
             return View(enderecos);
         }
 
-        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -44,10 +39,7 @@ namespace AEC.Controllers
         public async Task<IActionResult> Create(CreateEndereco endereco)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Login", "Login");
 
             if (ModelState.IsValid)
             {
@@ -71,17 +63,12 @@ namespace AEC.Controllers
             return NoContent();
         }
 
-        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
             var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Login", "Login");
 
             var endereco = await _context.Enderecos
                 .Where(e => e.Id == id && e.UsuarioId == userId)
@@ -99,11 +86,7 @@ namespace AEC.Controllers
             if (id != endereco.Id) return NotFound();
 
             var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Login", "Login");
 
             var enderecoExistente = await _context.Enderecos
                 .Where(e => e.Id == id && e.UsuarioId == userId)
@@ -130,18 +113,12 @@ namespace AEC.Controllers
             return View(enderecoExistente);
         }
 
-
-        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
             var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Login", "Login");
 
             var endereco = await _context.Enderecos
                 .Where(e => e.Id == id && e.UsuarioId == userId)
@@ -157,11 +134,7 @@ namespace AEC.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Index", "Login");
 
             var endereco = await _context.Enderecos
                 .Where(e => e.Id == id && e.UsuarioId == userId)

@@ -1,9 +1,11 @@
-﻿using AEC.Models;
+﻿using AEC.Filters;
+using AEC.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace AEC.Controllers
 {
+    [AuthenticatedUser]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

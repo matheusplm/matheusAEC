@@ -7,7 +7,6 @@ using AEC.Filters;
 
 namespace AEC.Controllers
 {
-    [Route("Usuario")]
     [AuthenticatedUser]
     public class UsuarioController : Controller
     {
@@ -15,28 +14,18 @@ namespace AEC.Controllers
 
         public UsuarioController(ApplicationDbContext context) => _context = context;
 
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (userId == null) return RedirectToAction("Index", "Login");
 
             var usuarioLogado = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == userId);
-
-            if (usuarioLogado == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
+            if (usuarioLogado == null) return RedirectToAction("Index", "Login");
 
             return View(usuarioLogado);
         }
 
         [HttpPost]
-        [Route("UpdateName")]
         public async Task<IActionResult> UpdateName(string nome)
         {
             if (string.IsNullOrWhiteSpace(nome))
@@ -49,10 +38,7 @@ namespace AEC.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             var usuario = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == userId);
 
-            if (usuario == null)
-            {
-                return NotFound("Usuário não encontrado.");
-            }
+            if (usuario == null) return NotFound("Usuário não encontrado.");
 
             usuario.Nome = nome;
             _context.Update(usuario);
@@ -61,18 +47,13 @@ namespace AEC.Controllers
             return RedirectToAction("Index");
         }
 
-
         [HttpPost]
-        [Route("UpdatePassword")]
         public async Task<IActionResult> UpdatePassword(string senhaAtual, string novaSenha, string confirmacaoSenha)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             var usuario = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == userId);
 
-            if (usuario == null)
-            {
-                return NotFound("Usuário não encontrado.");
-            }
+            if (usuario == null) return NotFound("Usuário não encontrado.");
 
             var passwordHasher = new PasswordHasher<UsuarioModel>();
             var verificaSenha = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, senhaAtual);
