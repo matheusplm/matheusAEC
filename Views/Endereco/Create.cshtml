@@ -5,33 +5,38 @@
 <form asp-action="Create">
     <div>
         <label asp-for="CEP"></label>
-        <input asp-for="CEP" id="cep" />
+        <input asp-for="CEP" id="cep" required />
         <span asp-validation-for="CEP"></span>
     </div>
     <div>
         <label asp-for="Logradouro"></label>
-        <input asp-for="Logradouro" id="logradouro" />
+        <input asp-for="Logradouro" id="logradouro" required />
         <span asp-validation-for="Logradouro"></span>
     </div>
     <div>
         <label asp-for="Bairro"></label>
-        <input asp-for="Bairro" id="bairro" />
+        <input asp-for="Bairro" id="bairro" required />
         <span asp-validation-for="Bairro"></span>
     </div>
     <div>
         <label asp-for="Cidade"></label>
-        <input asp-for="Cidade" id="cidade" />
+        <input asp-for="Cidade" id="cidade" required />
         <span asp-validation-for="Cidade"></span>
     </div>
     <div>
         <label asp-for="UF"></label>
-        <input asp-for="UF" id="uf" />
+        <input asp-for="UF" id="uf" required />
         <span asp-validation-for="UF"></span>
     </div>
     <div>
         <label asp-for="Numero"></label>
-        <input asp-for="Numero" />
+        <input asp-for="Numero" required />
         <span asp-validation-for="Numero"></span>
+    </div>
+    <div>
+        <label asp-for="Complemento"></label>
+        <input asp-for="Complemento" />
+        <span asp-validation-for="Complemento"></span>
     </div>
     <button type="submit">Salvar</button>
 </form>
