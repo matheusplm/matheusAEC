@@ -3,100 +3,97 @@ using AEC.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AEC.Filters;
 
 namespace AEC.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("Usuario")]
+    [AuthenticatedUser]
     public class UsuarioController : Controller
     {
         private readonly ApplicationDbContext _context;
 
         public UsuarioController(ApplicationDbContext context) => _context = context;
 
-        /// <summary>
-        /// Obtém todos os usuários.
-        /// </summary>
-        /// <returns>Uma lista de usuários.</returns>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var usuarios = await _context.Usuarios.ToListAsync();
-            return Ok(usuarios);
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var usuarioLogado = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == userId);
+
+            if (usuarioLogado == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            return View(usuarioLogado);
         }
 
-        /// <summary>
-        /// Cria um novo usuário.
-        /// </summary>
-        /// <param name="usuario">O usuário a ser criado.</param>
-        /// <returns>O usuário criado.</returns>
         [HttpPost]
-        public async Task<IActionResult> Create(UsuarioModel usuario)
+        [Route("UpdateName")]
+        public async Task<IActionResult> UpdateName(string nome)
         {
-            if (ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(nome))
             {
-                var passwordHasher = new PasswordHasher<UsuarioModel>();
-                usuario.Senha = passwordHasher.HashPassword(usuario, usuario.Senha);
-
-                _context.Add(usuario);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(Index), new { id = usuario.Id }, new { message = "Usuário criado com sucesso", usuarioId = usuario.Id });
+                ModelState.AddModelError(nameof(nome), "O nome é obrigatório.");
+                var usuarioAtual = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == HttpContext.Session.GetInt32("UserId"));
+                return View("Index", usuarioAtual);
             }
-            return BadRequest(ModelState);
-        }
 
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var usuario = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == userId);
 
-        /// <summary>
-        /// Obtém um usuário específico para edição.
-        /// </summary>
-        /// <param name="id">ID do usuário a ser editado.</param>
-        /// <returns>O usuário correspondente ao ID.</returns>
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null) return NotFound();
-
-            return Ok(usuario);
-        }
-
-        /// <summary>
-        /// Atualiza um usuário existente.
-        /// </summary>
-        /// <param name="id">ID do usuário a ser atualizado.</param>
-        /// <param name="usuario">Os novos dados do usuário.</param>
-        /// <returns>Uma resposta sem conteúdo.</returns>
-        [HttpPut("{id}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, UsuarioModel usuario)
-        {
-            if (id != usuario.Id) return NotFound();
-
-            if (ModelState.IsValid)
+            if (usuario == null)
             {
-                _context.Update(usuario);
-                await _context.SaveChangesAsync();
-                return NoContent();
+                return NotFound("Usuário não encontrado.");
             }
-            return BadRequest(ModelState);
-        }
 
-        /// <summary>
-        /// Deleta um usuário existente.
-        /// </summary>
-        /// <param name="id">ID do usuário a ser deletado.</param>
-        /// <returns>Uma resposta sem conteúdo.</returns>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null) return NotFound();
-
-            _context.Usuarios.Remove(usuario);
+            usuario.Nome = nome;
+            _context.Update(usuario);
             await _context.SaveChangesAsync();
-            return NoContent();
+
+            return RedirectToAction("Index");
+        }
+
+
+        [HttpPost]
+        [Route("UpdatePassword")]
+        public async Task<IActionResult> UpdatePassword(string senhaAtual, string novaSenha, string confirmacaoSenha)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var usuario = await _context.Usuarios.SingleOrDefaultAsync(u => u.Id == userId);
+
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var passwordHasher = new PasswordHasher<UsuarioModel>();
+            var verificaSenha = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, senhaAtual);
+
+            if (verificaSenha == PasswordVerificationResult.Failed)
+            {
+                ModelState.AddModelError(string.Empty, "Senha atual incorreta.");
+                return View("Index", usuario);
+            }
+
+            if (novaSenha != confirmacaoSenha)
+            {
+                ModelState.AddModelError(string.Empty, "A nova senha e a confirmação devem coincidir.");
+                return View("Index", usuario);
+            }
+
+            usuario.Senha = passwordHasher.HashPassword(usuario, novaSenha);
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
         }
     }
 }

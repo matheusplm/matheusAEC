@@ -1,12 +1,12 @@
 ﻿using AEC.Data;
 using AEC.Models;
+using AEC.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AEC.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class EnderecoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,86 +16,162 @@ namespace AEC.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// Obtém todos os endereços.
-        /// </summary>
-        /// <returns>Uma lista de endereços.</returns>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var enderecos = await _context.Enderecos.ToListAsync();
-            return Ok(enderecos);
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var enderecos = await _context.Enderecos
+                .Where(e => e.UsuarioId == userId)
+                .ToListAsync();
+
+            return View(enderecos);
         }
 
-        /// <summary>
-        /// Cria um novo endereço.
-        /// </summary>
-        /// <param name="endereco">O endereço a ser criado.</param>
-        /// <returns>O endereço criado.</returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(EnderecoModel endereco)
+        public async Task<IActionResult> Create(CreateEndereco endereco)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(endereco);
+                var newEndereco = new EnderecoModel
+                {
+                    CEP = endereco.CEP,
+                    Logradouro = endereco.Logradouro,
+                    Complemento = endereco.Complemento,
+                    Bairro = endereco.Bairro,
+                    Cidade = endereco.Cidade,
+                    UF = endereco.UF,
+                    Numero = endereco.Numero,
+                    UsuarioId = (int)userId
+                };
+
+                _context.Add(newEndereco);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(Index), new { id = endereco.Id }, endereco);
+                return RedirectToAction(nameof(Index));
             }
-            return BadRequest(ModelState);
+
+            return NoContent();
         }
 
-        /// <summary>
-        /// Obtém um endereço para edição.
-        /// </summary>
-        /// <param name="id">ID do endereço a ser editado.</param>
-        /// <returns>O endereço correspondente ao ID.</returns>
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var endereco = await _context.Enderecos.FindAsync(id);
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var endereco = await _context.Enderecos
+                .Where(e => e.Id == id && e.UsuarioId == userId)
+                .FirstOrDefaultAsync();
+
             if (endereco == null) return NotFound();
 
-            return Ok(endereco);
+            return View(endereco);
         }
 
-        /// <summary>
-        /// Atualiza um endereço existente.
-        /// </summary>
-        /// <param name="id">ID do endereço a ser atualizado.</param>
-        /// <param name="endereco">Os novos dados do endereço.</param>
-        /// <returns>Uma resposta sem conteúdo.</returns>
-        [HttpPut("{id}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EnderecoModel endereco)
+        public async Task<IActionResult> Edit(int id, UpdateEndereco endereco)
         {
             if (id != endereco.Id) return NotFound();
 
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var enderecoExistente = await _context.Enderecos
+                .Where(e => e.Id == id && e.UsuarioId == userId)
+                .FirstOrDefaultAsync();
+
+            if (enderecoExistente == null) return NotFound();
+
             if (ModelState.IsValid)
             {
-                _context.Update(endereco);
+                enderecoExistente.CEP = endereco.CEP;
+                enderecoExistente.Logradouro = endereco.Logradouro;
+                enderecoExistente.Complemento = endereco.Complemento;
+                enderecoExistente.Bairro = endereco.Bairro;
+                enderecoExistente.Cidade = endereco.Cidade;
+                enderecoExistente.UF = endereco.UF;
+                enderecoExistente.Numero = endereco.Numero;
+
+                _context.Update(enderecoExistente);
                 await _context.SaveChangesAsync();
-                return NoContent();
+
+                return RedirectToAction(nameof(Index));
             }
-            return BadRequest(ModelState);
+
+            return View(enderecoExistente);
         }
 
-        /// <summary>
-        /// Deleta um endereço existente.
-        /// </summary>
-        /// <param name="id">ID do endereço a ser deletado.</param>
-        /// <returns>Uma resposta sem conteúdo.</returns>
-        [HttpDelete("{id}")]
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var endereco = await _context.Enderecos
+                .Where(e => e.Id == id && e.UsuarioId == userId)
+                .FirstOrDefaultAsync();
+
+            if (endereco == null) return NotFound();
+
+            return View(endereco);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var endereco = await _context.Enderecos.FindAsync(id);
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var endereco = await _context.Enderecos
+                .Where(e => e.Id == id && e.UsuarioId == userId)
+                .FirstOrDefaultAsync();
+
             if (endereco == null) return NotFound();
 
             _context.Enderecos.Remove(endereco);
             await _context.SaveChangesAsync();
-            return NoContent();
+            return RedirectToAction(nameof(Index));
         }
     }
 }
