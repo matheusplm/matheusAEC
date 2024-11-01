@@ -1,0 +1,39 @@
+﻿@model IEnumerable<AEC.Models.EnderecoModel>
+
+<h1>Endereços</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>CEP</th>
+            <th>Rua</th>
+            <th>Complemento</th>
+            <th>Bairro</th>
+            <th>Cidade</th>
+            <th>UF</th>
+            <th>Número</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var endereco in Model)
+        {
+            <tr>
+                <td>@endereco.CEP</td>
+                <td>@endereco.Logradouro</td>
+                <td>@endereco.Complemento</td>
+                <td>@endereco.Bairro</td>
+                <td>@endereco.Cidade</td>
+                <td>@endereco.UF</td>
+                <td>@endereco.Numero</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@endereco.Id">Editar</a> |
+                    <a asp-action="Delete" asp-route-id="@endereco.Id">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create">Adicionar Endereço</a>

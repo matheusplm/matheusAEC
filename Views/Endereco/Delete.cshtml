@@ -1,0 +1,12 @@
+﻿@model AEC.Models.EnderecoModel
+
+<h1>Excluir Endereço</h1>
+
+<p>Você tem certeza que deseja excluir o endereço @Model.Logradouro?</p>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit">Excluir</button>
+</form>
+
+<a asp-action="Index">Cancelar</a>

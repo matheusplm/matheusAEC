@@ -1,0 +1,38 @@
+﻿@model AEC.Models.UsuarioModel
+
+@{
+    ViewData["Title"] = "Criar Conta";
+    Layout = "_LoginLayout";
+}
+
+<h2>Criar Conta</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label asp-for="Nome"></label>
+        <input asp-for="Nome" class="form-control" required />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Usuario"></label>-
+        <input asp-for="Usuario" class="form-control" required />
+        <span asp-validation-for="Usuario" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Senha"></label>
+        <input asp-for="Senha" class="form-control" type="password" required />
+        <span asp-validation-for="Senha" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Criar Conta</button>
+</form>
+
+<div class="mt-3">
+    <p>
+        Já tem uma conta?
+        <a asp-action="Login" asp-controller="Login">Faça Login</a>
+    </p>
+</div>

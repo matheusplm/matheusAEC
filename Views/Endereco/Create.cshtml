@@ -1,0 +1,72 @@
+﻿@model AEC.Models.EnderecoModel
+
+<h1>@ViewBag.Title</h1>
+
+<form asp-action="Create">
+    <div>
+        <label asp-for="CEP"></label>
+        <input asp-for="CEP" id="cep" />
+        <span asp-validation-for="CEP"></span>
+    </div>
+    <div>
+        <label asp-for="Logradouro"></label>
+        <input asp-for="Logradouro" id="logradouro" />
+        <span asp-validation-for="Logradouro"></span>
+    </div>
+    <div>
+        <label asp-for="Bairro"></label>
+        <input asp-for="Bairro" id="bairro" />
+        <span asp-validation-for="Bairro"></span>
+    </div>
+    <div>
+        <label asp-for="Cidade"></label>
+        <input asp-for="Cidade" id="cidade" />
+        <span asp-validation-for="Cidade"></span>
+    </div>
+    <div>
+        <label asp-for="UF"></label>
+        <input asp-for="UF" id="uf" />
+        <span asp-validation-for="UF"></span>
+    </div>
+    <div>
+        <label asp-for="Numero"></label>
+        <input asp-for="Numero" />
+        <span asp-validation-for="Numero"></span>
+    </div>
+    <button type="submit">Salvar</button>
+</form>
+
+<a asp-action="Index">Voltar</a>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#cep').on('input', function () {
+                var cep = $(this).val().replace(/\D/g, '');
+                if (cep.length === 8) {
+                    $('input').prop('disabled', true);
+
+                    $.getJSON('https://viacep.com.br/ws/' + cep + '/json/', function (data) {
+                        if (!data.erro) {
+                            $('#logradouro').val(data.logradouro);
+                            $('#bairro').val(data.bairro);
+                            $('#cidade').val(data.localidade);
+                            $('#uf').val(data.uf);
+                        } else {
+                            alert('CEP não encontrado!');
+                            $('#logradouro').val('');
+                            $('#bairro').val('');
+                            $('#cidade').val('');
+                            $('#uf').val('');
+                        }
+                    }).fail(function () {
+                        alert('Erro ao buscar o CEP. Tente novamente.');
+                    }).always(function () {
+                        $('input').prop('disabled', false);
+                    });
+                }
+            });
+        });
+    </script>
+}
