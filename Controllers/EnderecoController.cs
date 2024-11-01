@@ -2,8 +2,13 @@
 using AEC.Filters;
 using AEC.Models;
 using AEC.Requests;
+using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Formats.Asn1;
+using System.Globalization;
+using System.Text;
 
 namespace AEC.Controllers
 {
@@ -146,5 +151,40 @@ namespace AEC.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> ExportToCsv()
+        {
+            var enderecos = await _context.Enderecos.ToListAsync();
+
+            using (var writer = new StringWriter())
+            {
+                var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ";"
+                };
+
+                using (var csv = new CsvWriter(writer, csvConfig))
+                {
+                    await csv.WriteRecordsAsync(enderecos.Select(e => new
+                    {
+                        e.Id,
+                        e.CEP,
+                        e.Logradouro,
+                        e.Complemento,
+                        e.Bairro,
+                        e.Cidade,
+                        e.UF,
+                        e.Numero
+                    }));
+
+                    var result = writer.ToString();
+                    var bytes = Encoding.UTF8.GetBytes(result);
+
+                    return File(bytes, "text/csv", "enderecos.csv");
+                }
+            }
+        }
+
+
     }
 }
