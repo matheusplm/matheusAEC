@@ -1,12 +1,66 @@
 ﻿@model AEC.Models.EnderecoModel
 
-<h1>Excluir Endereço</h1>
+@{
+    ViewData["Title"] = "Excluir Endereço";
+}
 
-<p>Você tem certeza que deseja excluir o endereço @Model.Logradouro?</p>
+<div class="login-container">
+    <div class="login-box">
+        <h2 class="login-title">Excluir Endereço</h2>
 
-<form asp-action="DeleteConfirmed">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit">Excluir</button>
-</form>
+        <p>Você tem certeza que deseja excluir o endereço <strong>@Model.Logradouro</strong>?</p>
 
-<a asp-action="Index">Cancelar</a>
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-danger">Excluir</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    .login-box {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+        text-align: left;
+    }
+
+    .login-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+        text-align: center;
+    }
+
+    .text-end {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+</style>

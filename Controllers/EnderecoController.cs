@@ -134,12 +134,13 @@ namespace AEC.Controllers
             return View(endereco);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Index", "Login");
+            if (userId == null) return RedirectToAction("Login", "Login");
 
             var endereco = await _context.Enderecos
                 .Where(e => e.Id == id && e.UsuarioId == userId)
@@ -151,6 +152,7 @@ namespace AEC.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         public async Task<IActionResult> ExportToCsv()
         {
