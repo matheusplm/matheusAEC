@@ -46,10 +46,9 @@
             </tbody>
         </table>
 
-        <div class="text-center mt-3">
+        <div class="text-end mt-3">
             <a asp-action="Create" class="btn btn-primary">Adicionar Endereço</a>
-            <br />
-            <a asp-action="ExportToCsv" class="btn btn-secondary mt-2">Exportar para CSV</a>
+            <a asp-action="ExportToCsv" class="btn btn-secondary">Exportar para CSV</a>
         </div>
     </div>
 </div>
@@ -84,21 +83,24 @@
     .table {
         width: 100%;
         margin-top: 1rem;
-        table-layout: fixed;
+        table-layout: auto;
     }
 
         .table th, .table td {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            text-align: center;
+            vertical-align: middle;
         }
 
     .action-buttons {
         display: flex;
+        justify-content: center;
         gap: 5px;
     }
 
-    .btn {
-        flex: 1;
+    .text-end {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
     }
 </style>
