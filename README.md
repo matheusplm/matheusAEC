@@ -24,7 +24,7 @@
 - **Frontend:** HTML, CSS e JavaScript (incluindo jQuery)
 
 ## Como Começar
-Para iniciar a aplicação, é bem simples: basta executá-la! Para configurar o banco de dados, você só precisa rodar o seguinte comando no Gerenciador de Pacotes do Visual Studio:
+Para iniciar a aplicação, é bem simples: basta executá-la! Para configurar o banco de dados, configure a connectionString no appsettings.json e depois você só precisa rodar o seguinte comando no Gerenciador de Pacotes do Visual Studio:
 
 ```bash
 EntityFrameworkCore\Update-Database
