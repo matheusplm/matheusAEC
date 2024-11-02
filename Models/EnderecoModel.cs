@@ -20,7 +20,7 @@ namespace AEC.Models
         public string Logradouro { get; set; }
 
         [StringLength(100)]
-        public string Complemento { get; set; }
+        public string? Complemento { get; set; }
 
         [Required]
         [StringLength(50)]
